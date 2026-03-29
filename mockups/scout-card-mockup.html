@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gnarcast — Scout Card Mockup</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #060d14;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── Background gradient simulating mountain video ── */
+    .bg {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(15, 40, 70, 0.9) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(10, 55, 45, 0.8) 0%, transparent 55%),
+        radial-gradient(ellipse at 60% 80%, rgba(30, 20, 60, 0.7) 0%, transparent 50%),
+        linear-gradient(160deg, #060d14 0%, #0a1f2e 40%, #081a12 70%, #0d0a1a 100%);
+      z-index: 0;
+    }
+
+    /* subtle noise texture */
+    .bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      opacity: 0.4;
+    }
+
+    /* ── Layout ── */
+    .page { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; padding: 0 48px; }
+
+    /* ── Nav ── */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 0;
+    }
+
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 22px;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span { color: rgba(255,255,255,0.4); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .nav-links a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #fff; }
+
+    .nav-btn {
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 999px;
+      padding: 8px 20px;
+      color: #fff !important;
+      font-size: 13px !important;
+      font-weight: 500 !important;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.06);
+      transition: background 0.2s, border-color 0.2s !important;
+    }
+
+    .nav-btn:hover { background: rgba(255,255,255,0.12) !important; border-color: rgba(255,255,255,0.4) !important; }
+
+    /* ── Hero ── */
+    .hero {
+      padding: 64px 0 56px;
+    }
+
+    .hero-label {
+      font-size: 12px;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 20px;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(52px, 7vw, 96px);
+      line-height: 0.95;
+      color: #fff;
+      letter-spacing: -2px;
+      max-width: 800px;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: rgba(255,255,255,0.28);
+    }
+
+    .hero-sub {
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 999px;
+      padding: 12px 28px;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 500;
+      text-decoration: none;
+      backdrop-filter: blur(8px);
+      background: rgba(255,255,255,0.07);
+      cursor: pointer;
+      transition: all 0.2s;
+      letter-spacing: 0.01em;
+    }
+
+    .cta-btn:hover {
+      background: rgba(255,255,255,0.14);
+      border-color: rgba(255,255,255,0.5);
+      transform: translateY(-1px);
+    }
+
+    .hero-tagline {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      max-width: 220px;
+      line-height: 1.5;
+    }
+
+    /* ── Cards section ── */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.25);
+      margin-bottom: 16px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      padding-bottom: 64px;
+    }
+
+    /* hover group: blur siblings */
+    .cards-grid:has(.card:hover) .card:not(:hover) {
+      filter: blur(2px);
+      opacity: 0.45;
+    }
+
+    /* ── Card base ── */
+    .card {
+      border-radius: 20px;
+      padding: 24px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      transition: transform 0.25s ease, filter 0.25s ease, opacity 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover { transform: translateY(-4px) scale(1.01); }
+
+    /* Card variants */
+    .card-light {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.18);
+      backdrop-filter: blur(20px);
+    }
+
+    .card-dark {
+      background: rgba(8, 18, 28, 0.85);
+      border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(20px);
+    }
+
+    .card-add {
+      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.2);
+      backdrop-filter: blur(8px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-add:hover {
+      border-color: rgba(255,255,255,0.4);
+      background: rgba(255,255,255,0.04);
+    }
+
+    /* status dot */
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+    }
+
+    .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-active .status-dot { background: #4ade80; box-shadow: 0 0 6px #4ade80; }
+    .status-active { color: rgba(74, 222, 128, 0.8); }
+
+    .status-paused .status-dot { background: rgba(255,255,255,0.3); }
+    .status-paused { color: rgba(255,255,255,0.3); }
+
+    .mountains {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      font-weight: 400;
+      letter-spacing: 0.03em;
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    /* Scout name — hero text */
+    .scout-name {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(36px, 4vw, 52px);
+      line-height: 1;
+      color: #fff;
+      letter-spacing: -1.5px;
+      margin: 16px 0 0;
+    }
+
+    /* alert signal */
+    .alert-signal {
+      font-size: 11px;
+      color: rgba(255,255,255,0.35);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-top: 10px;
+    }
+
+    .alert-signal.live { color: rgba(251, 191, 36, 0.85); }
+    .signal-dot { font-size: 9px; }
+
+    /* summary */
+    .scout-summary {
+      font-size: 12.5px;
+      line-height: 1.6;
+      color: rgba(255,255,255,0.5);
+      font-weight: 400;
+      margin-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 12px;
+    }
+
+    /* score badge */
+    .score-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid;
+      margin-bottom: 8px;
+    }
+
+    .score-epic { color: #c084fc; border-color: rgba(192, 132, 252, 0.4); background: rgba(192, 132, 252, 0.1); }
+    .score-great { color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); background: rgba(56, 189, 248, 0.1); }
+    .score-watching { color: rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.12); background: transparent; }
+
+    /* add card */
+    .add-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: rgba(255,255,255,0.4);
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+
+    .card-add:hover .add-icon {
+      border-color: rgba(255,255,255,0.5);
+      color: rgba(255,255,255,0.7);
+    }
+
+    .add-label {
+      font-size: 13px;
+      color: rgba(255,255,255,0.35);
+      text-align: center;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .add-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.2);
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* ── Logged-out note ── */
+    .demo-banner {
+      text-align: center;
+      padding: 12px 24px;
+      margin: 0 0 32px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      font-size: 12px;
+      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.04em;
+    }
+
+    .demo-banner a {
+      color: rgba(255,255,255,0.6);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<div class="bg"></div>
+
+<div class="page">
+
+  <!-- Nav -->
+  <nav>
+    <div class="logo">GNAR<span>/</span>CAST</div>
+    <div class="nav-links">
+      <a href="#">Conditions</a>
+      <a href="#">Alerts</a>
+      <a href="#" class="nav-btn">Account</a>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-label">Your personal mountain scout</div>
+    <h1>The mountain<br/><em>is calling.</em></h1>
+    <div class="hero-sub">
+      <a class="cta-btn" href="#">Send out your Scout &nbsp;→</a>
+      <p class="hero-tagline">Personalized alerts so you never miss the days that matter.</p>
+    </div>
+  </div>
+
+  <!-- Demo banner (logged-out state) -->
+  <div class="demo-banner">
+    👋 These are example Scouts. <a href="#">Sign up free</a> to build your own.
+  </div>
+
+  <!-- Cards -->
+  <div class="section-label">Your Scouts</div>
+
+  <div class="cards-grid">
+
+    <!-- Card 1: Active, epic conditions incoming -->
+    <div class="card card-light">
+      <div>
+        <div class="card-header">
+          <div class="status status-active"><div class="status-dot"></div> Active</div>
+          <div class="mountains">Mammoth<br/>June Mtn</div>
+        </div>
+        <div class="scout-name">FIRST<br/>TRACKS</div>
+        <div class="alert-signal live"><span class="signal-dot">⚡</span> Conditions building at Mammoth</div>
+      </div>
+      <div>
+        <div class="score-badge score-epic">● Epic incoming</div>
+        <div class="scout-summary">Chasing corduroy mornings — cold overnight temps, fresh grooming, and clear skies. Alerts 3 days out so you can lock in the early tram.</div>
+      </div>
+    </div>
+
+    <!-- Card 2: Dark, powder emergency -->
+    <div class="card card-dark">
+      <div>
+        <div class="card-header">
+          <div class="status status-active"><div class="status-dot"></div> Active</div>
+          <div class="mountains">8 Ikon resorts<br/>Tahoe · Utah</div>
+        </div>
+        <div class="scout-name">STORM<br/>CHASER</div>
+        <div class="alert-signal"><span class="signal-dot">◎</span> Watching 7-day forecast</div>
+      </div>
+      <div>
+        <div class="score-badge score-great">● Great conditions</div>
+        <div class="scout-summary">Powder emergency mode. 10"+ overnight on any Ikon mountain triggers an immediate SMS — regardless of day of week.</div>
+      </div>
+    </div>
+
+    <!-- Card 3: Paused, Tahoe trip -->
+    <div class="card card-light">
+      <div>
+        <div class="card-header">
+          <div class="status status-paused"><div class="status-dot"></div> Paused</div>
+          <div class="mountains">Heavenly · Kirkwood<br/>Northstar</div>
+        </div>
+        <div class="scout-name">TAHOE<br/>TRIP</div>
+        <div class="alert-signal"><span class="signal-dot">○</span> Activate to start watching</div>
+      </div>
+      <div>
+        <div class="score-badge score-watching">● Watching</div>
+        <div class="scout-summary">Worth the 4-hour drive only when conditions are exceptional — 12"+ new snow, low crowds, and a 3-day clear window after the storm.</div>
+      </div>
+    </div>
+
+    <!-- Card 4: Add new Scout -->
+    <div class="card card-add">
+      <div class="add-icon">+</div>
+      <div class="add-label">New Scout</div>
+      <div class="add-sub">Send out another one</div>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
