@@ -18,7 +18,7 @@ At the start of a new session, ask Claude to read this file. It contains everyth
 |---------|--------|------|
 | Vision & Mission | ✅ Locked | `00_Master_PRD.md` |
 | Auth & Signup | ✅ Locked (with open questions) | `01_Auth_Signup.md` |
-| User Preferences | 🔄 In progress — conditions list locked, weighting & profiles next | `02_User_Preferences.md` |
+| User Preferences | ✅ Locked (with open questions) | `02_User_Preferences.md` |
 | Look & Feel | 🔲 Not started — interview pending | `03_Look_Feel.md` |
 | Weather & Conditions Data | 🔲 Not started — interview pending | `04_Weather_Data.md` |
 | Mountain Status Tracking | 🔲 Not started — interview pending | `05_Mountain_Status.md` |
@@ -27,16 +27,14 @@ At the start of a new session, ask Claude to read this file. It contains everyth
 
 ---
 
-## Next Up: User Preferences (`02_User_Preferences.md`)
+## Next Up: Look & Feel (`03_Look_Feel.md`)
 
-This is the next interview section. Topics to cover:
-
-- Mountain selection (how users manage their list, add/remove mountains)
-- Ski pass awareness (Ikon, Epic, Indy, etc.) and how it filters mountains
-- Condition preferences — what data points matter (fresh snow, wind, visibility, temperature, crowds, avalanche danger, etc.) and how users configure thresholds
-- Named Alert Profiles — full spec (introduced in Auth spec as a backlog item, needs full treatment here)
-- Profile defaults vs. customization depth
-- How preferences map to the alert/scoring system
+Topics to cover:
+- Visual design direction — large inspiring mountain imagery, rotating backgrounds
+- Image sourcing strategy (curated library, user's chosen mountains, API)
+- Brand feel — typography, color palette, overall aesthetic
+- Key UI screens: dashboard, Scout setup, alert view, conditions detail
+- Mobile-first considerations for future app
 
 ---
 

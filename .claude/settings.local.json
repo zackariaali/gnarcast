@@ -7,7 +7,8 @@
       "Bash(gh repo:*)",
       "Bash(ls /Users/zackariaali/Documents/Claude/Projects/Gnarcast/.git/*.lock)",
       "Bash(git push:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(ls /Users/zackariaali/documents/claude/projects/gnarcast/.git/*.lock)"
     ]
   }
 }
