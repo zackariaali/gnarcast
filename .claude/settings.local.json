@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(gh auth:*)",
+      "Bash(gh repo:*)",
+      "Bash(ls /Users/zackariaali/Documents/Claude/Projects/Gnarcast/.git/*.lock)",
+      "Bash(git push:*)",
+      "Bash(git add:*)"
+    ]
+  }
+}
