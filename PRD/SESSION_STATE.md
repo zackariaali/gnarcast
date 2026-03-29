@@ -18,7 +18,7 @@ At the start of a new session, ask Claude to read this file. It contains everyth
 |---------|--------|------|
 | Vision & Mission | ✅ Locked | `00_Master_PRD.md` |
 | Auth & Signup | ✅ Locked (with open questions) | `01_Auth_Signup.md` |
-| User Preferences | 🔲 Not started — interview pending | `02_User_Preferences.md` |
+| User Preferences | 🔄 In progress — conditions list locked, weighting & profiles next | `02_User_Preferences.md` |
 | Look & Feel | 🔲 Not started — interview pending | `03_Look_Feel.md` |
 | Weather & Conditions Data | 🔲 Not started — interview pending | `04_Weather_Data.md` |
 | Mountain Status Tracking | 🔲 Not started — interview pending | `05_Mountain_Status.md` |
@@ -64,9 +64,15 @@ This is the next interview section. Topics to cover:
 - Go one section at a time, interview first, write spec after section is closed
 - Document the **why** behind every decision, not just the what
 - Use tags: `[LOCKED]`, `[OPEN]`, `[BACKLOG]`, `[WHY]`
-- Commit to git after each spec is written
 - Keep responses conversational — no bullet-point dumps, ask one focused question at a time
 - User is Zackaria (Zack) — product is Gnarcast, a personalized ski/snowboard conditions alert platform
+
+## Git & File Workflow
+
+- **Repo location on Zack's Mac:** `~/Documents/Claude/Projects/Gnarcast`
+- **Git workflow:** Claude writes files, Zack commits and pushes from his Terminal
+- **When to commit:** Claude will call out "ready to commit" after each meaningful update — Zack runs `git add . && git push` from the Gnarcast folder
+- **Why:** The mounted filesystem prevents Claude from running git commits directly; writing files works fine
 
 ---
 
