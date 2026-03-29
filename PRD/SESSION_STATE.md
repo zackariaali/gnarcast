@@ -70,9 +70,11 @@ This is the next interview section. Topics to cover:
 ## Git & File Workflow
 
 - **Repo location on Zack's Mac:** `~/Documents/Claude/Projects/Gnarcast`
-- **Git workflow:** Claude writes files, Zack commits and pushes from his Terminal
-- **When to commit:** Claude will call out "ready to commit" after each meaningful update — Zack runs `git add . && git push` from the Gnarcast folder
-- **Why:** The mounted filesystem prevents Claude from running git commits directly; writing files works fine
+- **GitHub repo:** https://github.com/zackariaali/gnarcast
+- **Git workflow:** Claude handles all git operations directly — no manual commits needed from Zack
+- **Lock files:** Always run `rm -f .git/*.lock` before any git command (Cowork and Claude Code sessions can leave stale locks)
+- **Committing:** Stage all changes, commit with a descriptive message, and push — no confirmation needed from Zack
+- **gh CLI:** Authenticated as `zackariaali`, HTTPS protocol. New repos: `gh repo create <name> --public --source=. --remote=origin --push`
 
 ---
 
