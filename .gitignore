@@ -1,3 +1,14 @@
+# OS
 .DS_Store
+Thumbs.db
+
+# Video assets — large binaries belong on a CDN (Cloudflare R2 / S3) in production
+# Keep locally for mockup dev but don't commit to git
 *.mp4
 *.mov
+*.webm
+
+# Editor
+.vscode/
+*.swp
+*.swo
