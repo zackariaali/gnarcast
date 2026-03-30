@@ -19,7 +19,7 @@ At the start of a new session, ask Claude to read this file. It contains everyth
 | Vision & Mission | ✅ Locked | `00_Master_PRD.md` |
 | Auth & Signup | ✅ Locked (with open questions) | `01_Auth_Signup.md` |
 | User Preferences | ✅ Locked (with open questions) | `02_User_Preferences.md` |
-| Look & Feel | 🔲 Not started — interview pending | `03_Look_Feel.md` |
+| Look & Feel | ✅ Locked (with open questions) | `03_Look_Feel.md` |
 | Weather & Conditions Data | 🔲 Not started — interview pending | `04_Weather_Data.md` |
 | Mountain Status Tracking | 🔲 Not started — interview pending | `05_Mountain_Status.md` |
 | Tech Stack | 🔲 Not started — interview pending | `06_Tech_Stack.md` |
@@ -27,14 +27,15 @@ At the start of a new session, ask Claude to read this file. It contains everyth
 
 ---
 
-## Next Up: Look & Feel (`03_Look_Feel.md`)
+## Next Up: Weather & Conditions Data (`04_Weather_Data.md`)
 
 Topics to cover:
-- Visual design direction — large inspiring mountain imagery, rotating backgrounds
-- Image sourcing strategy (curated library, user's chosen mountains, API)
-- Brand feel — typography, color palette, overall aesthetic
-- Key UI screens: dashboard, Scout setup, alert view, conditions detail
-- Mobile-first considerations for future app
+- Data sources for weather (APIs — Open-Meteo, Tomorrow.io, Weather.gov, etc.)
+- Data sources for mountain status (resort APIs, snow report crawling, scraping)
+- How frequently to poll/refresh data
+- Data pipeline architecture (how raw data becomes a Scout score)
+- Historical data storage for backtesting
+- Handling missing or unreliable data from resorts
 
 ---
 
