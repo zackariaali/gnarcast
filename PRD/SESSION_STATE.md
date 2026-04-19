@@ -1,6 +1,6 @@
 # Gnarcast — Session State
 
-> **Last Updated:** 2026-03-29
+> **Last Updated:** 2026-04-19
 > **Purpose:** Quick-resume file for continuing PRD interviews across sessions.
 > To resume: *"Read SESSION_STATE.md in my Gnarcast PRD folder and let's pick up where we left off."*
 
@@ -20,22 +20,24 @@ At the start of a new session, ask Claude to read this file. It contains everyth
 | Auth & Signup | ✅ Locked (with open questions) | `01_Auth_Signup.md` |
 | User Preferences | ✅ Locked (with open questions) | `02_User_Preferences.md` |
 | Look & Feel | ✅ Locked (with open questions) | `03_Look_Feel.md` |
-| Weather & Conditions Data | 🔲 Not started — interview pending | `04_Weather_Data.md` |
+| Weather & Conditions Data | ✅ Locked (with open questions) | `04_Weather_Data.md` |
 | Mountain Status Tracking | 🔲 Not started — interview pending | `05_Mountain_Status.md` |
 | Tech Stack | 🔲 Not started — interview pending | `06_Tech_Stack.md` |
 | Sharing & Social | 🔲 Not started — interview pending | `07_Sharing_Social.md` |
 
 ---
 
-## Next Up: Weather & Conditions Data (`04_Weather_Data.md`)
+## Next Up: Mountain Status Tracking (`05_Mountain_Status.md`)
 
 Topics to cover:
-- Data sources for weather (APIs — Open-Meteo, Tomorrow.io, Weather.gov, etc.)
-- Data sources for mountain status (resort APIs, snow report crawling, scraping)
-- How frequently to poll/refresh data
-- Data pipeline architecture (how raw data becomes a Scout score)
-- Historical data storage for backtesting
-- Handling missing or unreliable data from resorts
+- What "Mountain Status" means as a distinct concept from weather data
+- Resort open/closed status — how it's determined and surfaced
+- Lift-by-lift status vs. overall resort status
+- Trail/terrain status (open %, new terrain unlocks)
+- Grooming reports — sourcing and freshness
+- Crowd & wait time signals
+- How Mountain Status data feeds Scout scoring
+- Decide: separate spec or fold into 04_Weather_Data.md?
 
 ---
 
@@ -53,8 +55,17 @@ Topics to cover:
 
 - Distance/drive-time as a factor in alert scoring
 - Deep-dive on each onboarding step (exact copy, validation, error states)
-- Named Alert Profiles full spec → being addressed in User Preferences section
+- Named Alert Profiles full spec → addressed in `02_User_Preferences.md`
 - `.claude/settings.local.json` — user decided not to commit for now, can revisit
+- Three Scout setup flow versions (quick/standard/expert) — UX to spec out
+- Algorithm feedback / backtesting — let users rate alerts, tune scoring
+- Tiered conditions rollout — surface only available signals per resort in Scout config UI
+- Scout templates — pre-built Scouts for common rider profiles (Pow Chaser, Park Rat, etc.)
+- Two-way SMS interactions — GOING / SKIP / PAUSE / MORE commands
+- Resort data profile schema — internal per-resort data availability map
+- Proactive condition unlock notifications — alert users when a new signal becomes available for a saved resort
+- Internal resort ops dashboard — availability toggle, signal health (green/yellow/red), scraper debug tools
+- Historical data retention policy — how long raw + scored data is kept
 
 ---
 
