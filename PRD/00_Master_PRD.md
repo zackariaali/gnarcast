@@ -1,6 +1,6 @@
 # Gnarcast — Master PRD
 
-> **Status:** In Progress | **Last Updated:** 2026-03-29
+> **Status:** First Pass Complete | **Last Updated:** 2026-04-19
 
 ---
 
@@ -35,13 +35,14 @@ The core value proposition: the further in advance a user knows about their perf
 
 | Area | Sub-Spec | Status |
 |------|----------|--------|
-| Auth & Signup Flow | [01_Auth_Signup.md](./01_Auth_Signup.md) | In Progress |
-| User Preferences | [02_User_Preferences.md](./02_User_Preferences.md) | Not Started |
-| Look & Feel | [03_Look_Feel.md](./03_Look_Feel.md) | Not Started |
-| Weather & Conditions Data | [04_Weather_Data.md](./04_Weather_Data.md) | Not Started |
-| Mountain Status Tracking | [05_Mountain_Status.md](./05_Mountain_Status.md) | Not Started |
-| Tech Stack | [06_Tech_Stack.md](./06_Tech_Stack.md) | Not Started |
-| Sharing & Social | [07_Sharing_Social.md](./07_Sharing_Social.md) | Not Started |
+| Auth & Signup Flow | [01_Auth_Signup.md](./01_Auth_Signup.md) | ✅ Locked |
+| User Preferences | [02_User_Preferences.md](./02_User_Preferences.md) | ✅ Locked |
+| Look & Feel | [03_Look_Feel.md](./03_Look_Feel.md) | ✅ Locked |
+| Weather & Conditions Data | [04_Weather_Data.md](./04_Weather_Data.md) | ✅ Locked |
+| Mountain Status Tracking | [05_Mountain_Status.md](./05_Mountain_Status.md) | ✅ Locked |
+| Tech Stack | [06_Tech_Stack.md](./06_Tech_Stack.md) | ✅ Locked |
+| Sharing & Popular Setups | [07_Sharing_Social.md](./07_Sharing_Social.md) | ✅ Locked |
+| Admin Console | [08_Admin_Console.md](./08_Admin_Console.md) | ✅ Locked |
 
 ---
 
@@ -74,10 +75,13 @@ The core value proposition: the further in advance a user knows about their perf
 
 ## Open Questions
 
-- `[OPEN]` Final auth provider decision (Clerk vs. Supabase Auth) — deferred to tech stack discussion.
+- `[LOCKED]` ~~Auth provider~~ — **Supabase Auth** (decided in 06_Tech_Stack.md)
 - `[OPEN]` Monetization model — free, freemium, or paid subscription? To be discussed.
-- `[OPEN]` Alert scoring model — user-defined thresholds vs. Gnarcast-calculated smart score vs. both?
+- `[LOCKED]` ~~Alert scoring model~~ — **user-configured tiered weights + sensitivity dial** (decided in 02_User_Preferences.md)
 - `[OPEN]` Notification lookahead window — fixed (3-day, 7-day) or user-configurable?
+- `[OPEN]` Scout sharing opt-in vs. default-on — see 07_Sharing_Social.md
+- `[OPEN]` Named lift selection in Scout config — launch feature or post-launch? See 05_Mountain_Status.md
+- `[OPEN]` Minimum Scout count threshold for Popular Setups feature — calibrate at launch
 
 ---
 
