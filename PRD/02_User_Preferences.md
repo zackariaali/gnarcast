@@ -1,6 +1,6 @@
 # Gnarcast — User Preferences Spec
 
-> **Status:** In Progress | **Last Updated:** 2026-03-29
+> Sub-spec 02 | Status: **LOCKED (with open questions)** | Last Updated: 2026-05-16
 
 ---
 
@@ -69,16 +69,33 @@ Scouts can be interacted with via two channels:
 
 **[WHY split]** SMS two-way interaction (via Twilio) handles the time-sensitive decisions a user makes the morning an alert arrives. Deep configuration requires a full UI. When the mobile app launches, SMS quick actions can migrate to push notification taps.
 
-### Pre-Defined Scout Templates `[BACKLOG]`
+### Scout Templates `[LOCKED]`
 
-To accelerate onboarding and help new users get value faster, Gnarcast will offer pre-built Scout templates:
+To accelerate onboarding and help new users get value faster, Gnarcast ships with a set of hand-curated Scout templates. Users pick a template, select their mountains, and are live in under 60 seconds.
 
-- **Powder Hound** — optimized for deep snow, high new snow threshold, low crowd tolerance
-- **Groomer Morning** — fresh corduroy, sunny and cold, early day conditions
-- **Storm Chaser** — active snowfall, acceptable visibility, mid-storm vibes
-- **Bluebird Day** — post-storm sunshine, settled snow, crowd-aware
+**The six canonical templates (Day 1):**
 
-Users pick a template, select their mountains, and are live in under 60 seconds.
+| Template | Profile |
+|----------|---------|
+| **FIRST TRACKS** | Fresh corduroy, sunny and cold, early-day grooming. For groomer lovers who want first chair on a clean canvas. |
+| **STORM CHASER** | Active snowfall, acceptable visibility, mid-storm vibes. For riders who want to ski *in* the storm, not after it. |
+| **POW HUNT** | Deep new snow, low crowd tolerance, post-storm window. For powder hounds who want fresh and untracked. |
+| **BLUEBIRD** | Post-storm sunshine, settled snow, crowd-aware. The classic "perfect day" archetype. |
+| **PARK DAY** | Terrain park focus — features open, mild temps, low wind, decent visibility. For park rats. |
+| **ROAD TRIP** | Multi-mountain destination Scout — exceptional conditions only (worth the drive), longer lookahead window, broader mountain set. |
+
+**Template structure:** Each template is a complete Scout config — weights across the conditions system, sensitivity dial setting, suggested notification settings — minus the mountain list, which the user supplies. The user can adjust any weight after picking the template; templates are starting points, never locked.
+
+**Relationship to Popular Setups (see `07_Sharing_Social.md`):**
+
+Templates and Popular Setups occupy the same UX slot in the Scout creation flow ("pick a starting point") but serve different purposes:
+
+- **Templates** are hand-curated by Gnarcast and exist from Day 1. They carry the product through the cold-start problem — there's something to pick from even at launch with zero data.
+- **Popular Setups** are data-derived archetypes computed from real user Scouts at a specific mountain. They only appear once a mountain has reached the active-Scout threshold (see 07).
+- **When Popular Setups are available for a mountain, they take precedence over templates** in that mountain's creation UI, because they reflect how riders actually configure this specific mountain. Templates remain available as a "Start from a generic archetype" option below.
+- Templates are also used as the example Scouts on the logged-out landing page (see `03_Look_Feel.md`) — the same canonical names appear there.
+
+[WHY templates AND popular setups] Templates solve the cold-start problem: a brand-new product needs configured Scouts to show on the logged-out page and starting points for the first 1,000 users. Popular Setups solve the long-tail problem: once a mountain has signal, "how do riders actually configure Crystal" is more useful than a generic Powder Hunt template. Letting the data take over as it accumulates is the right gradient.
 
 ### Scout Sharing `[BACKLOG]`
 
@@ -182,6 +199,8 @@ The scoring system is entirely internal — users never see points or math. They
 Where **intensity multiplier** rewards conditions that exceed the threshold. Example: 12" of new snow when the threshold is 6" scores higher than barely clearing 6". The multiplier is applied proportionally to how far above/below the threshold the condition lands.
 
 **Alert fires when:** Score ≥ trigger threshold AND no Dealbreakers are failed
+
+**Alert content modifications:** When an alert fires, safety-critical signals are prepended as warnings — these do not affect *whether* the alert fires, only its content. Currently the only such signal is **road closure on the primary route** (see `05_Mountain_Status.md`). The framing is extensible so future safety overrides (e.g., extreme avalanche danger, severe weather warnings) can be added without changing the core scoring algorithm.
 
 **Trigger threshold** maps to user-facing sensitivity:
 - **Epic** — high bar, only genuinely special days

@@ -1,6 +1,6 @@
 # Gnarcast — Auth & Signup Spec
 
-> **Status:** In Progress | **Last Updated:** 2026-03-29
+> Sub-spec 01 | Status: **LOCKED (with open questions)** | Last Updated: 2026-05-16
 
 ---
 
@@ -24,7 +24,7 @@ Google and Apple Sign In will be added when the mobile app ships.
 
 **[WHY]** Apple Sign In is a mandatory App Store requirement if any social auth is offered on iOS. Both providers give verified email addresses for free. Deferring to mobile launch avoids unnecessary complexity on web while keeping the path clear for future implementation.
 
-**[WHY deferred]** Adding OAuth before a mobile app exists creates configuration and maintenance overhead without user benefit. Using Clerk or Supabase Auth from day one means OAuth can be added with minimal engineering effort when the time comes.
+**[WHY deferred]** Adding OAuth before a mobile app exists creates configuration and maintenance overhead without user benefit. Using Supabase Auth from day one means OAuth can be added with minimal engineering effort when the time comes.
 
 ### Account Linking `[LOCKED]`
 
@@ -32,12 +32,11 @@ User profiles will include a "Connected Accounts" section from day one (initiall
 
 **[WHY]** Without account linking, a web user who tries Apple Sign In on the app with a different email could create a duplicate account. Building the "connected accounts" hook early prevents this at low cost.
 
-### Auth Provider `[OPEN]`
+### Auth Provider `[LOCKED]`
 
-Decision deferred to Tech Stack discussion. Finalists:
+**Supabase Auth** (decided in `06_Tech_Stack.md`).
 
-- **Clerk** — dedicated auth service, best-in-class DX, polished pre-built UI, web + mobile SDKs, 50K MAU free tier, ~$20/mo Pro. Requires a JWT bridge if Supabase is used as the database.
-- **Supabase Auth** — auth included in the Supabase platform (database + storage + functions), free, deeply integrated with Row Level Security. Less polished UI components but fully capable. Best choice if Supabase is the backend.
+Rationale recap: Gnarcast needs both auth and a database, and Supabase delivers both in one integrated platform. Clerk was the runner-up — better polished UI components and DX, but auth-only, which would have meant a separate database vendor, a JWT bridge, and two pricing models to manage. Supabase Auth supports phone/SMS OTP via Twilio, OAuth providers, row-level security, and session management — everything specced above. Migrating from local Supabase to Supabase Cloud requires zero code changes. See `06_Tech_Stack.md` for the full decision record.
 
 ---
 
@@ -112,25 +111,18 @@ The goal: user experiences core product value before leaving the signup screen. 
 
 ---
 
-## Named Alert Profiles `[BACKLOG — queued for User Preferences spec]`
+## Scouts (formerly "Named Alert Profiles") `[LOCKED — see 02_User_Preferences.md]`
 
-Rather than a single set of notification preferences, users can create multiple named **Alert Profiles** — each with its own mountain set, condition thresholds, and notification settings.
+The "Named Alert Profiles" concept originally captured here evolved into **Scouts** — Gnarcast's first-class personalization primitive. A Scout is a named, self-contained configuration consisting of a mountain set, condition preferences with weights and thresholds, notification settings, a schedule, and a status (active/paused/scheduled/archived).
 
-**Default profile created at onboarding:** "Home Mountain"
+The default Scout created during onboarding is named "Home Mountain." Users can create unlimited additional Scouts (e.g., a "Tahoe Trip" Scout with exceptional-conditions-only thresholds across multiple Tahoe resorts, or a "Powder Emergency" Scout watching every monitored mountain for 12"+ overnight events).
 
-**Example use cases:**
-- *Home Mountain* — local resort, aggressive thresholds, SMS + email, 3-day lookahead
-- *Tahoe Trip* — multiple Tahoe resorts, exceptional conditions only (worth the drive), 7-day lookahead
-- *Powder Emergency* — any monitored mountain, 12"+ overnight only, SMS, day-of alert only
-
-This feature shapes the data model for user preferences. Full spec to be written in `02_User_Preferences.md`.
-
-**[WHY]** A single profile forces users to choose between monitoring different mountain sets at different thresholds. Named profiles accommodate the reality of how skiers actually plan — home mountain logic is different from destination trip logic.
+Full spec: see `02_User_Preferences.md`.
 
 ---
 
 ## Open Questions
 
-- `[OPEN]` Auth provider final decision: Clerk vs. Supabase Auth (deferred to tech stack)
-- `[OPEN]` Should email verification be blocking (must verify before proceeding) or async (can use app, nudged to verify)?
-- `[OPEN]` Exact lookahead window options for notifications — fixed options or fully user-configurable?
+- ✅ ~~Auth provider final decision~~ — **Supabase Auth** (locked in `06_Tech_Stack.md`)
+- `[OPEN]` Should email verification be blocking (must verify before proceeding) or async (can use app, nudged to verify)? — resolve in `10_User_Profile.md` or `14_Security_Compliance.md`
+- `[OPEN]` Exact lookahead window options for notifications — fixed options or fully user-configurable? — resolve in `09_Notifications.md`

@@ -1,5 +1,5 @@
 # Gnarcast PRD — Tech Stack
-> Sub-spec 06 of 07 | Status: **LOCKED (with open questions)**
+> Sub-spec 06 | Status: **LOCKED (with open questions)** | Last Updated: 2026-05-16
 > Related specs: `01_Auth_Signup.md` (auth), `04_Weather_Data.md` (data pipeline), `05_Mountain_Status.md` (road/access APIs)
 
 ---
@@ -20,6 +20,32 @@ Gnarcast is built as a containerized web application from day one — running lo
 
 ---
 
+## Decision: Weather Provider Architecture
+
+**LOCKED: `WeatherProvider` abstraction. Open-Meteo (primary) + Tomorrow.io (parallel signal + fallback).**
+
+Weather providers are abstracted behind a `WeatherProvider` interface in the scraper service. Each provider implements a common contract; the data that lands in PostgreSQL is the normalized canonical schema, never a provider's raw response. The "primary" designation is a runtime configuration flag — not hardcoded. Switching primary is a config change, not a migration.
+
+**Why an abstraction layer:**
+- Provider choice becomes operational, not architectural. New providers (SNOTEL-only mode, future NWS integration, OpenSnow if a partnership emerges) plug in without schema changes.
+- Multiple providers run in parallel from day one. Each provider's output is stored alongside the canonical normalized record. This is cheap (extra rows in a snapshot table) and gives us A/B comparison capability to evaluate prediction accuracy against actual observed conditions over time.
+- Fallback is automatic. If the primary is unavailable or returns degraded data, the fallback provider's normalized output is used and the confidence level is downgraded per the `04_Weather_Data.md` confidence system.
+
+**Why Open-Meteo as primary:**
+- Both providers pull from the same underlying NWP models (GFS, ECMWF) — the differentiator is post-processing.
+- Open-Meteo exposes raw multi-model output (ICON-D2, ICON-US, AROME) which supports the "honest about uncertainty" principle of the data-confidence system.
+- Free, no API key, no surprise pricing changes — removes a class of operational risk.
+- Dedicated snow-specific parameters (snowfall amount, snow depth, freezing level height) and elevation-aware forecasts are first-class API parameters, not buried behind weather-code abstractions.
+
+**Why Tomorrow.io stays in the mix:**
+- Polished real-time signals and friendlier DX for some derived metrics.
+- Useful as a parallel signal for confidence comparison.
+- Automatic fallback if Open-Meteo has an outage.
+
+[WHY this matters more than which provider wins] The 04/06 contradiction in the original PRD pass surfaced that we were treating provider choice as if it were load-bearing. With the abstraction in place, it isn't. The architecture is what matters; the primary flag can be flipped at any time as we gather data on which provider gives us better signal at our specific resorts.
+
+---
+
 ## Stack Summary
 
 | Layer | Technology | Notes |
@@ -31,7 +57,7 @@ Gnarcast is built as a containerized web application from day one — running lo
 | SMS Notifications | Twilio | Already locked |
 | Scraping | Python + Playwright + BeautifulSoup | Separate service |
 | Job Queue | Celery + Redis | Scheduled scrape + score computation jobs |
-| Weather API | Tomorrow.io (primary) + Open-Meteo (fallback) | |
+| Weather API | Open-Meteo (primary) + Tomorrow.io (parallel/fallback) | Behind `WeatherProvider` abstraction — primary is config, not code |
 | Road Conditions | State DOT APIs (WSDOT, ODOT, etc.) | No vendor dependency |
 | Caching | Redis | Weather API responses, pre-computed scores |
 | Video CDN | Cloudflare R2 or Bunny.net | Background video delivery |
@@ -100,15 +126,20 @@ The scraping service is a **separate Python service** running alongside the Next
 **Job types:**
 | Job | Cadence | Description |
 |-----|---------|-------------|
-| `scrape_resort_status` | Every 2–4 hrs (in season) | Lift count, terrain %, grooming, open/closed |
-| `fetch_weather` | Every 1–3 hrs | Tomorrow.io forecast + SNOTEL snowpack |
-| `fetch_avalanche` | Daily (6am) | avalanche.org danger levels |
-| `fetch_road_conditions` | Every 15–30 min | State DOT API chain control + closures |
-| `compute_scout_scores` | After each data refresh | Re-score all active Scouts with fresh data |
-| `send_alerts` | After score computation | Fire SMS for Scouts that crossed their threshold |
+| `scrape_resort_status[resort_id]` | Every 2–4 hrs (in season) | Fans out per-resort. Each enabled resort has its own scheduled task instance. Pulls lift count, terrain %, grooming, open/closed in one HTTP pass. |
+| `fetch_weather[resort_id]` | Every 1–3 hrs | Fans out per-resort. Open-Meteo primary + Tomorrow.io parallel + SNOTEL snowpack. |
+| `fetch_avalanche[region_id]` | Daily (6am) | Fans out per avalanche region (e.g., NWAC, CAIC). |
+| `fetch_road_conditions[dot_region]` | Every 15–30 min | Fans out per state DOT API region. |
+| `compute_scout_scores[resort_id]` | After each data refresh | Re-scores Scouts that include the refreshed resort. |
+| `send_alerts` | After score computation | Fires SMS/email for Scouts that crossed their threshold. |
+
+**Per-resort job isolation:**
+Each resort's scraper runs as its own Celery task with its own schedule, its own log stream, and its own retry state. A failure at one resort (site layout change, timeout, captcha challenge, ToS-driven block) is contained to that resort — the other 162 keep running unaffected. The admin console's per-resort "Run scraper now" button and per-resort log view (see `08_Admin_Console.md`) operate directly against these isolated task instances.
+
+[WHY] Scraping 163 different resort websites means dealing with 163 independent failure modes. A monolithic "scrape all resorts" job would either need defensive try/catch around every resort (which buries failure detection) or take down the whole pipeline when one resort breaks. Per-resort tasks give us natural failure isolation, per-resort scheduling flexibility (some resorts can poll more often than others), and clean log boundaries for debugging.
 
 **Scraper failure handling:**
-- Failed scrapes logged with timestamp and error type
+- Failed scrapes logged with timestamp and error type, scoped to the specific resort task
 - Retry with exponential backoff (3 attempts before marking as failed)
 - Confidence level downgraded to Low on stale data (see `04_Weather_Data.md`)
 - Ops dashboard surfaces scraper health per resort (green/yellow/red)

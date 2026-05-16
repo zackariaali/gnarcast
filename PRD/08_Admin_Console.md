@@ -1,5 +1,5 @@
 # Gnarcast PRD — Admin Console
-> Sub-spec 08 of 08 | Status: **LOCKED (with open questions)**
+> Sub-spec 08 | Status: **LOCKED (with open questions)** | Last Updated: 2026-05-16
 > Related specs: `04_Weather_Data.md` (scraper pipeline), `05_Mountain_Status.md` (resort ops dashboard), `06_Tech_Stack.md` (Celery, Supabase roles)
 
 ---
@@ -50,7 +50,7 @@ The role system supports multiple admin users from day one. An `admin` can grant
 The landing page of the admin console. A high-level health summary — the first thing to check when something feels off.
 
 **Panels:**
-- **System Health** — green/yellow/red status indicators for each external dependency: Tomorrow.io API, Twilio, State DOT APIs (per region), Supabase, Redis
+- **System Health** — green/yellow/red status indicators for each external dependency: Open-Meteo API, Tomorrow.io API, Twilio, State DOT APIs (per region), Supabase, Redis
 - **Job Health** — summary of scheduled job status across all types: last run time, success/failure count in last 24 hours, any currently running jobs
 - **Resort Health** — count of resorts by data confidence: X resorts fully healthy, Y with degraded signals, Z with missing data
 - **Recent Alerts Fired** — last 24 hours of Scout alerts sent: count, success rate, any failures
@@ -70,12 +70,12 @@ The primary operational view. Shows the status of every Celery job type — the 
 
 | Job | Schedule | Description |
 |-----|----------|-------------|
-| `scrape_resort_status` | Every 2–4 hrs (in season) | Lift count, terrain %, grooming, open/closed per resort |
-| `fetch_weather` | Every 1–3 hrs | Tomorrow.io forecast + SNOTEL snowpack |
-| `fetch_avalanche` | Daily 6am | avalanche.org danger levels |
-| `fetch_road_conditions` | Every 15–30 min | State DOT API chain control + closures |
-| `compute_scout_scores` | After each data refresh | Re-score all active Scouts |
-| `send_alerts` | After score computation | Fire SMS for Scouts crossing threshold |
+| `scrape_resort_status[resort_id]` | Every 2–4 hrs (in season) | Per-resort task. Pulls lift count, terrain %, grooming, open/closed in one HTTP pass. |
+| `fetch_weather[resort_id]` | Every 1–3 hrs | Per-resort task. Open-Meteo (primary) + Tomorrow.io (parallel/fallback) + SNOTEL snowpack. |
+| `fetch_avalanche[region_id]` | Daily 6am | Per-region task. avalanche.org danger levels. |
+| `fetch_road_conditions[dot_region]` | Every 15–30 min | Per-DOT-region task. State DOT API chain control + closures. |
+| `compute_scout_scores[resort_id]` | After each data refresh | Re-scores Scouts that include the refreshed resort. |
+| `send_alerts` | After score computation | Fire SMS/email for Scouts crossing threshold. |
 
 ### Job List View (`/admin/jobs`)
 

@@ -1,5 +1,5 @@
 # Gnarcast PRD — Mountain Status Tracking
-> Sub-spec 05 of 07 | Status: **LOCKED (with open questions)**
+> Sub-spec 05 | Status: **LOCKED (with open questions)** | Last Updated: 2026-05-16
 > Related specs: `04_Weather_Data.md` (conditions layer), `02_User_Preferences.md` (Scout scoring)
 
 ---
@@ -18,11 +18,11 @@ Both layers feed the same Scout scoring engine but come from different data sour
 
 | Signal | Category | Data Source | Update Cadence | Scout Scoring |
 |--------|----------|-------------|----------------|---------------|
-| Resort open/closed | Operations | Resort website scrape | Daily (+ change detection) | Dealbreaker eligible |
-| Lift status (# open, which lifts) | Operations | Resort website scrape | Every 2–4 hrs in season | Configurable |
-| Terrain open % | Operations | Resort website scrape | Daily | Configurable |
-| Grooming report | Operations | Resort website scrape | Daily (6–8am) | Configurable |
-| Newly opened terrain | Operations | Resort website scrape | Daily | Configurable |
+| Resort open/closed | Operations | Resort website scrape | Every 2–4 hrs in-season | Dealbreaker eligible |
+| Lift status (# open, which lifts) | Operations | Resort website scrape | Every 2–4 hrs in-season | Configurable |
+| Terrain open % | Operations | Resort website scrape | Every 2–4 hrs in-season (updates ~once daily) | Configurable |
+| Grooming report | Operations | Resort website scrape | Every 2–4 hrs in-season (updates ~6–8am) | Configurable |
+| Newly opened terrain | Operations | Resort website scrape | Every 2–4 hrs in-season (updates ~once daily) | Configurable |
 | Parking availability | Operations | Resort API / scrape (where available) | Hourly | Informational only |
 | Predicted crowd level | Crowd | Algorithmic (see below) | Daily | Configurable (Avoid tier) |
 | Road open/closed | Access | State DOT API | 15–30 min | Hard override (see below) |

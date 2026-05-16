@@ -1,7 +1,7 @@
 # Gnarcast — Look & Feel Spec
 
-> **Status:** Locked | **Last Updated:** 2026-03-29
-> **Reference mockup:** `mockups/scout-card-mockup.html`
+> Sub-spec 03 | Status: **LOCKED (with open questions)** | Last Updated: 2026-05-16
+> Reference mockup: `mockups/scout-card-mockup.html`
 
 ---
 
@@ -114,7 +114,7 @@ Logged-in dashboard and logged-out landing page share the same hero layout:
 - CTA button: **"Send out your Scout →"** — pill style, frosted glass
 - Supporting tagline: *"Personalized alerts so you never miss the days that matter."*
 
-**Logged-out variant:** Same layout. Scout cards below show pre-populated example Scouts (see Scout Templates). A demo banner appears above the cards: *"These are example Scouts. Sign up free to build your own."*
+**Logged-out variant:** Same layout. Scout cards below show pre-populated example Scouts drawn from the canonical Scout Templates (see `02_User_Preferences.md`). A demo banner appears above the cards: *"These are example Scouts. Sign up free to build your own."*
 
 ### Scout Dashboard (Card Grid) `[LOCKED]`
 
@@ -240,8 +240,7 @@ Identical layout to the logged-in dashboard with three differences:
 
 **[WHY same layout]** New visitors immediately understand the product by seeing it in its natural state. No separate "marketing page" — the product is its own best marketing.
 
-**Example Scout names for logged-out page:**
-- FIRST TRACKS, STORM CHASER, POW HUNT, BLUEBIRD
+**Example Scout names for logged-out page:** Drawn from the canonical Scout Templates defined in `02_User_Preferences.md` — FIRST TRACKS, STORM CHASER, POW HUNT, BLUEBIRD, PARK DAY, ROAD TRIP. The logged-out page shows 4 cards by default (one randomized per session), with the +New Scout add card as the fifth tile.
 
 ---
 

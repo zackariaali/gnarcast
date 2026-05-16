@@ -1,7 +1,7 @@
 # Gnarcast — Weather & Conditions Data Spec
 
-> **Status:** Locked | **Last Updated:** 2026-03-29
-> **Related:** `05_Mountain_Status.md`, `02_User_Preferences.md`, `data/gnarcast-resort-directory.xlsx`
+> Sub-spec 04 | Status: **LOCKED (with open questions)** | Last Updated: 2026-05-16
+> Related specs: `05_Mountain_Status.md`, `02_User_Preferences.md`, `data/gnarcast-resort-directory.xlsx`
 
 ---
 
@@ -21,14 +21,14 @@ Two guiding principles:
 
 | Signal | Source | Method | Freshness |
 |--------|--------|---------|-----------|
-| Temperature (high/low/feels-like) | Open-Meteo or Tomorrow.io | API | Hourly |
-| Wind speed & direction | Open-Meteo or Tomorrow.io | API | Hourly |
-| Visibility & cloud cover | Open-Meteo or Tomorrow.io | API | Hourly |
-| Precipitation forecast (snow/rain) | Open-Meteo or Tomorrow.io | API | Hourly |
-| New snow last 24hrs (estimated) | SNOTEL + weather API | API | Hourly |
-| New snow last 48–72hrs (estimated) | SNOTEL + weather API | API | Hourly |
-| Base depth | Resort snow reports | Scrape | Daily 6–7am |
-| Mountain open % (runs & lifts) | Resort websites | Scrape | Daily 6–7am |
+| Temperature (high/low/feels-like) | Open-Meteo + Tomorrow.io | API | Hourly |
+| Wind speed & direction | Open-Meteo + Tomorrow.io | API | Hourly |
+| Visibility & cloud cover | Open-Meteo + Tomorrow.io | API | Hourly |
+| Precipitation forecast (snow/rain) | Open-Meteo + Tomorrow.io | API | Hourly |
+| New snow last 24hrs (estimated) | SNOTEL + Open-Meteo | API | Hourly |
+| New snow last 48–72hrs (estimated) | SNOTEL + Open-Meteo | API | Hourly |
+| Base depth | Resort snow reports | Scrape | Every 2–4 hrs in-season |
+| Mountain open % (runs & lifts) | Resort websites | Scrape | Every 2–4 hrs in-season |
 | Avalanche danger level | avalanche.org API | API | Daily |
 | Ski pass compatibility | Static internal database | Static | On resort onboard |
 | Day of week & holiday proximity | Internal calendar logic | Calculated | Real-time |
@@ -37,11 +37,11 @@ Two guiding principles:
 
 | Signal | Source | Method | Freshness |
 |--------|--------|---------|-----------|
-| Grooming reports | Resort websites | Scrape | Daily 6–7am |
+| Grooming reports | Resort websites | Scrape | Every 2–4 hrs in-season (updates ~once daily) |
 | Crowd estimates | Day-of-week + holiday + post-storm model | Calculated | Daily |
-| Specific lift status | Resort websites | Scrape | Daily 6–7am |
+| Specific lift status | Resort websites | Scrape | Every 2–4 hrs in-season |
 | Snow water equivalent (SWE) | SNOTEL network | API | Daily |
-| Newly opened terrain | Resort snow reports | Scrape + NLP | Daily 6–7am |
+| Newly opened terrain | Resort snow reports | Scrape + NLP | Every 2–4 hrs in-season (updates ~once daily) |
 | Active storm vs. post-storm | Weather API + pattern logic | Calculated | Hourly |
 | Days since last significant snowfall | Internal derived from history | Calculated | Daily |
 
@@ -53,13 +53,17 @@ Slope aspect & wind loading, social signals (crowdsourced ratings), lift line wa
 
 ## Data Sources
 
-### Weather APIs `[OPEN — final selection TBD at tech stack]`
+### Weather APIs `[LOCKED]`
 
-**Open-Meteo** — free, no API key, excellent global coverage, historical data to 1940. Best for: temperature, wind, precipitation, cloud cover, snow accumulation forecasts. Strongly preferred for cost and reliability.
+**Open-Meteo (primary)** — free, no API key, excellent global coverage, historical data to 1940. Exposes raw output from multiple high-resolution regional NWP models (ICON-D2 at 2km for Europe, ICON-US, AROME for the Alps) with elevation-aware forecasts and dedicated snow-specific parameters (snowfall amount, snow depth, freezing level height). Best for: temperature, wind, precipitation, cloud cover, snow accumulation forecasts.
 
-**Tomorrow.io** — generous free tier, more granular real-time data, better hyperlocal accuracy. Good fallback or supplement. May be worth for ski-specific forecast quality.
+**Tomorrow.io (parallel signal + fallback)** — commercial provider with generous free tier, polished real-time signals (precipitation type, weather codes), friendlier developer experience. Used in parallel with Open-Meteo for confidence comparison, and as automatic fallback if Open-Meteo is unavailable.
 
-**[WHY not a single provider]** Weather APIs go down, change pricing, or degrade accuracy. Running Open-Meteo as primary with Tomorrow.io as fallback provides resilience at minimal cost.
+**[WHY Open-Meteo primary]** Both providers pull from the same underlying NWP models (GFS, ECMWF) — the differentiator is post-processing. Open-Meteo's raw multi-model exposure lets us do ensemble-style comparison and supports the data-confidence system's "honest about uncertainty" principle. It's also free with no API key and no surprise pricing changes, removing a class of operational risk.
+
+**[WHY run both]** Weather APIs go down, change pricing, or degrade accuracy. Running both in parallel gives us automatic fallback resilience, and the ability to A/B compare prediction accuracy against actual observed conditions over time. Neither provider beats SNOTEL sensors on the ground for snowpack truth — both are model-driven forecasts.
+
+**Provider abstraction:** Weather providers are abstracted behind a `WeatherProvider` interface (see `06_Tech_Stack.md`). The "primary" designation is a configuration flag, not hardcoded — switching primary is a config change, not a migration. This keeps the architecture provider-agnostic and supports future provider additions without schema changes.
 
 ### SNOTEL Network (USDA)
 
@@ -92,13 +96,17 @@ Built and owned by Gnarcast. Key design decisions:
 | Data Type | Frequency | Notes |
 |-----------|-----------|-------|
 | Weather forecast | Hourly | Conditions shift throughout the day |
-| Mountain status (lifts, runs, grooming) | Daily at ~6am | Resorts publish morning reports |
+| Mountain status (lifts, runs, grooming, terrain) | Every 2–4 hrs in-season | One unified scrape pass per resort pulls all signals together |
 | Avalanche danger | Daily | Forecasters update each morning |
 | SNOTEL readings | Hourly | Sensor network updates frequently |
 | Scout score evaluation | After each data refresh | Alerts fire when score threshold crossed |
 | Historical data archival | Continuous | All data retained — see retention backlog |
 
-**[WHY hourly weather but daily resort status]** Weather forecasts genuinely change hour by hour — an afternoon wind event or storm cell can flip a day from great to skip. Resort status (which lifts are open, grooming) only changes meaningfully once a day when the morning report drops. Polling resort sites hourly would waste resources and risk getting rate-limited.
+**[WHY one unified scrape pass per resort]** Most resorts publish lifts, terrain, grooming, and base depth on a single snow-report page. Polling that page every 2–4 hours pulls all signals together in one HTTP request — splitting into per-signal jobs would multiply fetches without changing the data. Grooming and terrain typically only update once per morning, so most polls just confirm "no change" — that's expected and cheap.
+
+**[WHY 2–4 hrs and not hourly]** Lift status genuinely changes during the day (e.g., a wind hold on the gondola at noon), but resorts don't update their public snow-report pages more often than every couple hours in practice. Hourly polling would waste resources and risk rate-limiting without producing fresher data.
+
+**[WHY per-resort jobs, not one monolithic job]** Each resort has its own scraper job with custom logic, its own scheduled run, and its own log stream. Failure of one resort's scraper (a site layout change, a timeout, a captcha) is contained to that resort — the other 162 keep running. This also makes the admin console's per-resort debug tools (see `08_Admin_Console.md`) work directly against the same per-resort job execution.
 
 ---
 
@@ -137,29 +145,23 @@ The "let us know" link triggers a quick 3-option crowdsource prompt: **Groomed �
 
 ---
 
-## Resort Data Profile `[BACKLOG — see 00_Master_PRD.md]`
+## Resort Data Profile `[LOCKED — operational details in 08_Admin_Console.md]`
 
-Each resort in the directory has an internal **data profile** — a structured record of:
-- Which condition signals are available (by tier)
-- Last successful scrape timestamps per signal
-- Scraper health status (green/yellow/red)
-- Whether the resort is user-visible (availability toggle)
+Each resort in the directory has an internal **data profile** — a structured record of which condition signals are available (by tier), last successful scrape timestamps per signal, scraper health status (green/yellow/red), and whether the resort is user-visible.
 
 Scout configuration UI shows only conditions available for a given resort. Users never see the underlying data profile. When a resort's profile gains new signals, users with that resort in a Scout are notified via the prompt-based setup flow.
 
+The admin tooling that manages resort data profiles is fully specced in `08_Admin_Console.md` (see "Resort Management" → "Resort Detail View").
+
 ---
 
-## Internal Resort Operations Dashboard `[BACKLOG — see 00_Master_PRD.md]`
+## Internal Resort Operations Dashboard `[LOCKED — fully specced in 08_Admin_Console.md]`
 
-Admin-only tool. Never exposed to users. Features:
-- Per-resort availability toggle (controls user-facing visibility)
-- Data quality status per signal (green/yellow/red)
-- Last scraped timestamps
-- Raw scraped data inspector for debugging
-- Minimum data threshold gate (controls when a resort graduates to user-visible)
-- Scraper failure alerts and queue management
+Admin-only tool, never exposed to users. Provides per-resort availability toggle, data quality status per signal, last-scraped timestamps, raw scraped data inspector, minimum data threshold gate, and scraper failure alerts.
 
 **[WHY hidden from users]** Data quality management is an internal operations problem. Users should never see a resort with partial or broken data — they should either see it working properly or not see it at all. The dashboard is for the team, not the product.
+
+Full operational spec: see `08_Admin_Console.md`.
 
 ---
 
@@ -197,7 +199,7 @@ Data pipeline is built region by region, following the resort directory launch p
 
 ## Open Questions
 
-- `[OPEN]` Final weather API selection: Open-Meteo vs. Tomorrow.io vs. combination — decide at tech stack
+- ✅ ~~Final weather API selection~~ — **Open-Meteo primary + Tomorrow.io parallel/fallback, behind `WeatherProvider` abstraction** (locked above)
 - `[OPEN]` Exact minimum data threshold for resort graduation to user-visible
 - `[OPEN]` Canadian avalanche API integration (Avalanche Canada) — structure differs from US avalanche.org
 - `[OPEN]` Scraping rate limits and legal review per resort — some ToS explicitly prohibit scraping
